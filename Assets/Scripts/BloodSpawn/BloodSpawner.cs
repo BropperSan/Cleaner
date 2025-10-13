@@ -1,11 +1,12 @@
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BloodSpawner : MonoBehaviour
 {
     private BoxCollider[] colliders;
-    private BoxCollider randCol;
-    private BoxCollider bloodCol;
-    [SerializeField] public GameObject blood;
+    private Queue<KeyValuePair<Vector3, GameObject>> bloodSplits = new();
+    [SerializeField] public int wave;
 
     private void OnEnable()
     {
@@ -18,8 +19,13 @@ public class BloodSpawner : MonoBehaviour
     }
     private void Awake()
     {
-        bloodCol = blood.GetComponent<BoxCollider>();
+        bloodSplits.Clear();
         colliders = GetComponentsInChildren<BoxCollider>();
+    }
+
+    private void Start()
+    {
+        GenerateBloodQueue(wave);
     }
 
     private void Update()
@@ -34,14 +40,17 @@ public class BloodSpawner : MonoBehaviour
 
         return colliders[Random.Range(0, colliders.Length)];
     }
-    public Vector3 GetRandomPoint(BoxCollider col)
+    public Vector3 GetRandomPoint(BoxCollider col, GameObject bloodSplit)
     {
         if (col != null)
         {
+            BoxCollider bloodCol = bloodSplit.GetComponent<BoxCollider>();
+            float xOffset = bloodCol.size.x * bloodSplit.transform.localScale.x / 2;
+            float zOffset = bloodCol.size.z * bloodSplit.transform.localScale.z / 2;
             Vector3 localPoint = new Vector3(
-            Random.Range(col.bounds.min.x + bloodCol.size.x / 2, col.bounds.max.x - bloodCol.size.x / 2),
+            Random.Range(col.bounds.min.x + xOffset, col.bounds.max.x - xOffset),
             col.bounds.max.y * 4,
-            Random.Range(col.bounds.min.z + bloodCol.size.z / 2, col.bounds.max.z - bloodCol.size.z / 2)
+            Random.Range(col.bounds.min.z + zOffset, col.bounds.max.z - zOffset)
             );
 
             return localPoint;
@@ -51,7 +60,19 @@ public class BloodSpawner : MonoBehaviour
 
     private void Spawn()
     {
-        Vector3 point = GetRandomPoint(GetRandomCollider());
-        Instantiate(blood, point, Quaternion.identity);
+        if (bloodSplits.Count != 0)
+        {
+            KeyValuePair<Vector3, GameObject> bloodSplit = bloodSplits.Dequeue();
+            Instantiate(bloodSplit.Value, bloodSplit.Key, Quaternion.identity);
+        }
+    }
+
+    private void GenerateBloodQueue(int wave)
+    {
+        for (int i = 0; i < wave; i++)
+        {
+            GameObject bloodSplit = Resources.Load<GameObject>("Blood/blood" + Random.Range(1, 7));
+            bloodSplits.Enqueue(new KeyValuePair<Vector3, GameObject>(GetRandomPoint(GetRandomCollider(), bloodSplit), bloodSplit));
+        }
     }
 }
