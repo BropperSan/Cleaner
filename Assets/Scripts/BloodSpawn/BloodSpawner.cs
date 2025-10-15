@@ -71,7 +71,7 @@ public class BloodSpawner : MonoBehaviour
     {
         for (int i = 0; i < wave; i++)
         {
-            GameObject bloodSplit = Resources.Load<GameObject>("Blood/blood" + Random.Range(1, 7));
+            GameObject bloodSplit = Resources.Load<GameObject>("Blood/blood" + Random.Range(1, 8));
             bloodSplits.Enqueue(new KeyValuePair<Vector3, GameObject>(GetRandomPoint(GetRandomCollider(), bloodSplit), bloodSplit));
         }
     }
