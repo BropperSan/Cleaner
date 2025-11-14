@@ -237,6 +237,59 @@ public class LocationGeneration : MonoBehaviour
                 Debug.Log(locationVariants[location[i, j]]);
                 tile = Instantiate(locationVariants[location[i, j]]);
                 tile.transform.position = new Vector3(9 * i, 0, 9 * j);
+                if (i == 0 && j == 0)
+                {
+                    tile.transform.GetChild(4).gameObject.SetActive(true);
+                    tile.transform.GetChild(3).gameObject.SetActive(true);
+                    continue;
+                }
+                if (tile.tag != "Empty")
+                {
+                    if (i == 0)
+                    {
+                        tile.transform.GetChild(1).gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        if (location[i - 1, j] == 0)
+                        {
+                            tile.transform.GetChild(1).gameObject.SetActive(true);
+                        }
+                    }
+                    if (i == n - 1)
+                    {
+                        tile.transform.GetChild(0).gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        if (location[i + 1, j] == 0)
+                        {
+                            tile.transform.GetChild(0).gameObject.SetActive(true);
+                        }
+                    }
+                    if (j == 0)
+                    {
+                        tile.transform.GetChild(3).gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        if (location[i, j - 1] == 0)
+                        {
+                            tile.transform.GetChild(3).gameObject.SetActive(true);
+                        }
+                    }
+                    if (j == m - 1)
+                    {
+                        tile.transform.GetChild(2).gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        if (location[i, j + 1] == 0)
+                        {
+                            tile.transform.GetChild(2).gameObject.SetActive(true);
+                        }
+                    }
+                }
             }
         }
     }
