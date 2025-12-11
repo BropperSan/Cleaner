@@ -234,8 +234,8 @@ public class LocationGeneration : MonoBehaviour
         {
             for (int j = 0; j < m; j++)
             {
-                Debug.Log(locationVariants[location[i, j]]);
                 tile = Instantiate(locationVariants[location[i, j]]);
+                tile.transform.SetParent(transform);
                 tile.transform.position = new Vector3(9 * i, 0, 9 * j);
                 if (i == 0 && j == 0)
                 {
@@ -292,5 +292,11 @@ public class LocationGeneration : MonoBehaviour
                 }
             }
         }
+        BloodSpawner spawner = GetComponent<BloodSpawner>();
+        if (spawner != null)
+        {
+            spawner.InitializeSpawner();
+        }
     }
+
 }

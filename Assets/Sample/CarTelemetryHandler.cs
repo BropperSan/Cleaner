@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using _2DOF;
 using UnityEngine;
@@ -8,65 +7,87 @@ public class CarTelemetryHandler : MonoBehaviour
     private const float WAIT_TIME = SendingData.WAIT_TIME / 1000f;
 
     [SerializeField] private Transform vehicleTransform;
-    [SerializeField] private Rigidbody rigidbody;
+    [SerializeField] private Rigidbody carRigidbody;
+
+    [SerializeField] private bool useLocalVelocity = true;
+
+    [Range(0.5f, 100f)]
+    [SerializeField] private float angleMultiplier = 1.0f;
+
+    [Range(0.5f, 100f)]
+    [SerializeField] private float velocityMultiplier = 1.0f;
 
     private ObjectTelemetryData _telemetryDataData;
     private SendingData _sendingData;
 
+    private WaitForSeconds _waitObj;
+
     private void Awake()
     {
+        if (vehicleTransform == null) vehicleTransform = transform;
+        if (carRigidbody == null) carRigidbody = GetComponent<Rigidbody>();
+
         _sendingData = new SendingData();
         _telemetryDataData = _sendingData.ObjectTelemetryData;
+
+        _waitObj = new WaitForSeconds(WAIT_TIME);
     }
 
-    public void OnEnable()
+    private void OnEnable()
     {
-        StartCoroutine(TelemetryHandler());
+        if (_sendingData == null) return;
+
         _sendingData.SendingStart();
+        StartCoroutine(TelemetryRoutine());
     }
 
-    public void OnDisable()
+    private void OnDisable()
     {
-        StopCoroutine(TelemetryHandler());
+        if (_sendingData == null) return;
+
         _sendingData.SendingStop();
+        StopCoroutine(TelemetryRoutine());
     }
 
-    private IEnumerator TelemetryHandler()
+    private IEnumerator TelemetryRoutine()
     {
         while (true)
         {
             if (_telemetryDataData == null)
             {
-                yield return new WaitForSeconds(WAIT_TIME * 10f);
+                yield return new WaitForSeconds(1f);
                 continue;
             }
 
             UpdateAngles();
             UpdateVelocity();
 
-            Debug.Log(_telemetryDataData.ToString());
-
-            yield return new WaitForSeconds(WAIT_TIME);
+            yield return _waitObj;
         }
     }
 
     private void UpdateVelocity()
     {
-        _telemetryDataData.Velocity = rigidbody.linearVelocity;
+        Vector3 vel = carRigidbody.linearVelocity;
+
+        if (useLocalVelocity)
+        {
+            vel = vehicleTransform.InverseTransformDirection(vel);
+        }
+
+        _telemetryDataData.Velocity = vel * velocityMultiplier;
     }
 
     private void UpdateAngles()
     {
-        var euler = vehicleTransform.eulerAngles;
+        Vector3 rawAngles = vehicleTransform.eulerAngles;
 
-        euler.x = Mathf.Approximately(euler.x, 180) ? 0 : euler.x;
-        euler.z = Mathf.Approximately(euler.z, 180) ? 0 : euler.z;
-        euler.y = Mathf.Approximately(euler.y, 180) ? 0 : euler.y;
+        Vector3 normalizedAngles = new Vector3(
+            Mathf.DeltaAngle(0, rawAngles.x) * angleMultiplier,
+            Mathf.DeltaAngle(0, rawAngles.y),
+            Mathf.DeltaAngle(0, rawAngles.z) * angleMultiplier
+        );
 
-        euler.x = euler.x > 180 ? euler.x - 360 : euler.x;
-        euler.z = euler.z > 180 ? euler.z - 360 : euler.z;
-        euler.y = euler.y > 180 ? euler.y - 360 : euler.y;
-
-        _telemetryDataData.Angles = euler;
+        _telemetryDataData.Angles = normalizedAngles;
     }
 }

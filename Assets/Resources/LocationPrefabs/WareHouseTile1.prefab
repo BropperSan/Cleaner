@@ -1,51 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2956441007383448409
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5624549575831349619}
-  - component: {fileID: 1409176084790743237}
-  m_Layer: 0
-  m_Name: SpawnFone
-  m_TagString: SpawnZone
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
---- !u!4 &5624549575831349619
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2956441007383448409}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 619524206249914261}
-  m_Father: {fileID: 2450120035773046765}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1409176084790743237
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2956441007383448409}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e387d0ae688db1419e74684f4cf2692, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  wave: 0
 --- !u!1 &5433366717607841787
 GameObject:
   m_ObjectHideFlags: 0
@@ -82,7 +36,7 @@ Transform:
   - {fileID: 5244109415942736417}
   - {fileID: 5380016531670203866}
   - {fileID: 895018225161524576}
-  - {fileID: 5624549575831349619}
+  - {fileID: 619524206249914261}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7678336136745798107
@@ -96,8 +50,8 @@ GameObject:
   - component: {fileID: 619524206249914261}
   - component: {fileID: 3326868589246444757}
   m_Layer: 0
-  m_Name: Cube
-  m_TagString: Untagged
+  m_Name: SpawnZone
+  m_TagString: BloodZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -110,12 +64,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7678336136745798107}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 9, y: 0.01, z: 9}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5624549575831349619}
+  m_Father: {fileID: 2450120035773046765}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &3326868589246444757
 BoxCollider:
