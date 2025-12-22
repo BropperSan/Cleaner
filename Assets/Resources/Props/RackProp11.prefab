@@ -42,15 +42,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4238729871544819280, guid: 77bfee636187dbc4da2b10b6b44c9068, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 123
       objectReference: {fileID: 0}
     - target: {fileID: 5296574687794334313, guid: 77bfee636187dbc4da2b10b6b44c9068, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 123
       objectReference: {fileID: 0}
     - target: {fileID: 5365153417759491233, guid: 77bfee636187dbc4da2b10b6b44c9068, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 123
       objectReference: {fileID: 0}
     - target: {fileID: 5970625800706081433, guid: 77bfee636187dbc4da2b10b6b44c9068, type: 3}
       propertyPath: m_LocalScale.x
@@ -114,11 +114,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7362722676908148569, guid: 77bfee636187dbc4da2b10b6b44c9068, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 123
       objectReference: {fileID: 0}
     - target: {fileID: 9129297644809594947, guid: 77bfee636187dbc4da2b10b6b44c9068, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 2147483647
+      value: 123
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -90,4 +90,12 @@ public class CarTelemetryHandler : MonoBehaviour
 
         _telemetryDataData.Angles = normalizedAngles;
     }
+    public void ForceReset()
+    {
+        if (_telemetryDataData != null)
+        {
+            _telemetryDataData.Reset();
+            Debug.Log("Телеметрия сброшена в ноль перед выходом.");
+        }
+    }
 }

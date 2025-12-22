@@ -96,6 +96,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Crate1
       objectReference: {fileID: 0}
+    - target: {fileID: 8599373578322553035, guid: 27b4b4ac2f401194eab408a0b10bcb65, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 123
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -3,11 +3,9 @@ using UnityEngine.Events;
 
 public class LevelManager : MonoBehaviour
 {
-    // Синглтон, чтобы вызывать отовсюду
     public static LevelManager Instance;
 
-    [Header("События при полной очистке")]
-    public UnityEvent OnLevelCompleted; // Сюда в инспекторе перетащишь звуки, UI победы и т.д.
+    public UnityEvent OnLevelCompleted;
 
     private void Awake()
     {
@@ -17,7 +15,6 @@ public class LevelManager : MonoBehaviour
 
     public void TriggerWin()
     {
-        Debug.Log("Уровень пройден! Все чисто!");
         OnLevelCompleted?.Invoke();
     }
 }

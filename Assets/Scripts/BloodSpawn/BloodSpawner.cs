@@ -11,31 +11,41 @@ public class BloodSpawner : MonoBehaviour
 
     [SerializeField] public int bloodAmount = 10;
     [SerializeField]  public string zoneTag = "BloodZone";
+    bool isGenerated = false;
+    private int _totalBloodAtStart;
 
+    private void Awake()
+    {
+        isGenerated = false;
+    }
 
     private void Start()
-    {
-        GameObject[] zoneObjects = GameObject.FindGameObjectsWithTag(zoneTag);
-
-        spawnZones.Clear();
-        foreach (var obj in zoneObjects)
+    {   
+        if (this.GetComponentInParent<LocationGeneration>() == null)
         {
-            BoxCollider col = obj.GetComponent<BoxCollider>();
-            if (col != null)
+            Debug.Log("Я полез в старт, хотя не должен был");
+            GameObject[] zoneObjects = GameObject.FindGameObjectsWithTag(zoneTag);
+
+            spawnZones.Clear();
+            foreach (var obj in zoneObjects)
             {
-                spawnZones.Add(col);
+                BoxCollider col = obj.GetComponent<BoxCollider>();
+                if (col != null)
+                {
+                    spawnZones.Add(col);
+                }
             }
+
+            if (spawnZones.Count == 0)
+            {
+                Debug.LogError($"BloodSpawner: Не найдено объектов с тегом '{zoneTag}' и BoxCollider!");
+                return;
+            }
+
+            Debug.Log($"Найдено зон спавна: {spawnZones.Count}. Генерируем кровь...");
+
+            GenerateBloodQueue(bloodAmount);
         }
-
-        if (spawnZones.Count == 0)
-        {
-            Debug.LogError($"BloodSpawner: Не найдено объектов с тегом '{zoneTag}' и BoxCollider!");
-            return;
-        }
-
-        Debug.Log($"Найдено зон спавна: {spawnZones.Count}. Генерируем кровь...");
-
-        GenerateBloodQueue(bloodAmount);
     }
 
     private void Update()
@@ -46,6 +56,7 @@ public class BloodSpawner : MonoBehaviour
 
     public void InitializeSpawner()
     {
+        isGenerated = false;
         BoxCollider[] allColliders = GetComponentsInChildren<BoxCollider>();
 
         spawnZones.Clear();
@@ -87,11 +98,13 @@ public class BloodSpawner : MonoBehaviour
                 bloodDataQueue.Enqueue(new KeyValuePair<Vector3, GameObject>(point, prefab));
             }
         }
+        _totalBloodAtStart = bloodDataQueue.Count;
+        isGenerated = true;
     }
 
     private void ProcessSpawnQueue()
     {
-        if (bloodDataQueue.Count > 0)
+        if (bloodDataQueue.Count > 0 && isGenerated)
         {
             KeyValuePair<Vector3, GameObject> data = bloodDataQueue.Dequeue();
 
@@ -134,20 +147,48 @@ public class BloodSpawner : MonoBehaviour
 
     public Vector3 GetRandomPoint(BoxCollider col, GameObject bloodSplit)
     {
-        if (col != null)
+        if (col == null) return Vector3.zero;
+
+        float xPadding = 0f;
+        float zPadding = 0f;
+
+        if (bloodSplit != null)
         {
             BoxCollider bloodCol = bloodSplit.GetComponent<BoxCollider>();
-            if (bloodCol == null) return col.transform.position;
-
-            float xOffset = bloodCol.size.x * bloodSplit.transform.localScale.x / 2;
-            float zOffset = bloodCol.size.z * bloodSplit.transform.localScale.z / 2;
-            Vector3 localPoint = new Vector3(
-                Random.Range(col.bounds.min.x + xOffset, col.bounds.max.x - xOffset),
-                col.bounds.max.y * 4,
-                Random.Range(col.bounds.min.z + zOffset, col.bounds.max.z - zOffset)
-            );
-            return localPoint;
+            if (bloodCol != null)
+            {
+                xPadding = (bloodCol.size.x * bloodSplit.transform.localScale.x) / 2;
+                zPadding = (bloodCol.size.z * bloodSplit.transform.localScale.z) / 2;
+            }
         }
-        return Vector3.zero;
+
+        float halfSizeX = (col.size.x / 2) - xPadding;
+        float halfSizeZ = (col.size.z / 2) - zPadding;
+
+        if (halfSizeX < 0) halfSizeX = 0;
+        if (halfSizeZ < 0) halfSizeZ = 0;
+
+        Vector3 randomLocalPoint = new Vector3(
+            Random.Range(-halfSizeX, halfSizeX),
+            col.size.y / 2,
+            Random.Range(-halfSizeZ, halfSizeZ)
+        );
+
+        randomLocalPoint += col.center;
+
+        Vector3 worldPos = col.transform.TransformPoint(randomLocalPoint);
+
+        worldPos.y += 0.01f;
+
+        return worldPos;
+    }
+
+    public float GetCleanProgress()
+    {
+        if (_totalBloodAtStart == 0) return 1f;
+
+        int remaining = bloodDataQueue.Count + activeBloodList.Count;
+
+        return 1f - ((float)remaining / _totalBloodAtStart);
     }
 }

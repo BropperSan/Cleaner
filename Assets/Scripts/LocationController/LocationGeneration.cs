@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using Unity.AI.Navigation;
 using UnityEngine;
+using UnityEngine.AI;
+
 
 public class LocationGeneration : MonoBehaviour
 {
@@ -14,6 +17,7 @@ public class LocationGeneration : MonoBehaviour
     private int m;
     private GameObject[] locationVariants;
     private int[,] location;
+    public GameObject enemyObject;
 
     private void Awake()
     {
@@ -239,8 +243,8 @@ public class LocationGeneration : MonoBehaviour
                 tile.transform.position = new Vector3(9 * i, 0, 9 * j);
                 if (i == 0 && j == 0)
                 {
-                    tile.transform.GetChild(4).gameObject.SetActive(true);
                     tile.transform.GetChild(3).gameObject.SetActive(true);
+                    tile.transform.GetChild(3).gameObject.layer = 9;
                     continue;
                 }
                 if (tile.tag != "Empty")
@@ -248,55 +252,88 @@ public class LocationGeneration : MonoBehaviour
                     if (i == 0)
                     {
                         tile.transform.GetChild(1).gameObject.SetActive(true);
+                        tile.transform.GetChild(1).gameObject.layer = 9;
                     }
                     else
                     {
                         if (location[i - 1, j] == 0)
                         {
                             tile.transform.GetChild(1).gameObject.SetActive(true);
+                            tile.transform.GetChild(1).gameObject.layer = 9;
                         }
                     }
                     if (i == n - 1)
                     {
                         tile.transform.GetChild(0).gameObject.SetActive(true);
+                        tile.transform.GetChild(0).gameObject.layer = 9;
                     }
                     else
                     {
                         if (location[i + 1, j] == 0)
                         {
                             tile.transform.GetChild(0).gameObject.SetActive(true);
+                            tile.transform.GetChild(0).gameObject.layer = 9;
                         }
                     }
                     if (j == 0)
                     {
                         tile.transform.GetChild(3).gameObject.SetActive(true);
+                        tile.transform.GetChild(3).gameObject.layer = 9;
                     }
                     else
                     {
                         if (location[i, j - 1] == 0)
                         {
                             tile.transform.GetChild(3).gameObject.SetActive(true);
+                            tile.transform.GetChild(3).gameObject.layer = 9;
                         }
                     }
                     if (j == m - 1)
                     {
                         tile.transform.GetChild(2).gameObject.SetActive(true);
+                        tile.transform.GetChild(2).gameObject.layer = 9;
                     }
                     else
                     {
                         if (location[i, j + 1] == 0)
                         {
                             tile.transform.GetChild(2).gameObject.SetActive(true);
+                            tile.transform.GetChild(2).gameObject.layer = 9;
                         }
                     }
+                }
+            }
+        }
+        NavMeshSurface surface = GetComponent<NavMeshSurface>();
+        if (surface != null)
+        {
+            surface.BuildNavMesh();
+
+            if (enemyObject != null)
+            {
+                Vector3 spawnPoint = new Vector3(n * 9 / 2, 0, m * 9 / 2);
+                NavMeshHit hit;
+
+                if (NavMesh.SamplePosition(spawnPoint, out hit, 10.0f, NavMesh.AllAreas))
+                {
+                    enemyObject.transform.position = hit.position;
+
+                    enemyObject.SetActive(true);
+                    Debug.Log("Враг успешно размещен на Навмеше!");
+                }
+                else
+                {
+                    Debug.LogError("Не удалось найти место для врага на Навмеше!");
                 }
             }
         }
         BloodSpawner spawner = GetComponent<BloodSpawner>();
         if (spawner != null)
         {
+            Debug.Log("Карта готова, запускаем кровь!");
             spawner.InitializeSpawner();
         }
+
     }
 
 }

@@ -22,7 +22,7 @@ public class Blood : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        NewMonoBehaviourScript car = other.GetComponentInParent<NewMonoBehaviourScript>();
+        CarHandler car = other.GetComponentInParent<CarHandler>();
         if (car != null && car.IsBrushingActive)
         {
             Clean(Time.deltaTime);

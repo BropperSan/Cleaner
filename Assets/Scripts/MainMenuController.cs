@@ -1,13 +1,16 @@
+using _2DOF;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI; 
 
 public class MainMenuController : MonoBehaviour
 {
-
+    public string nextSceneName;
     public GameObject menuPanel;
-    public NewMonoBehaviourScript carController;
+    public CarHandler carController;
     public GameObject winPanel;
+    public GameObject losePanel;
 
 
     public Transform garageDoor;
@@ -43,6 +46,14 @@ public class MainMenuController : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        if (!menuPanel.activeSelf)
+        {
+            StartCoroutine(StartSequence());
+        }
+    }
+
     public void OnStartGameClicked()
     {
         if (buttonClickSound) _uiSource.PlayOneShot(buttonClickSound);
@@ -54,7 +65,15 @@ public class MainMenuController : MonoBehaviour
     {
         if (buttonClickSound) _uiSource.PlayOneShot(buttonClickSound);
 
+        if (carController != null)
+        {
+            var telemetry = carController.GetComponent<CarTelemetryHandler>();
 
+            if (telemetry != null)
+            {
+                telemetry.ForceReset();
+            }
+        }
         Application.Quit();
 
 #if UNITY_EDITOR
@@ -92,7 +111,11 @@ public class MainMenuController : MonoBehaviour
             garageDoor.localPosition = endPos;
         }
 
-        if (carController) carController.enabled = true;
+        if (carController)
+        {
+            carController.enabled = true;
+            carController.GetComponentInParent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        }
     }
 
     public void CloseGarageDoor()
@@ -129,8 +152,6 @@ public class MainMenuController : MonoBehaviour
 
     private IEnumerator WinRoutine()
     {
-        Debug.Log("Финал игры инициирован...");
-
         CloseGarageDoor();
 
         yield return new WaitForSeconds(doorDuration + 2.0f);
@@ -153,9 +174,48 @@ public class MainMenuController : MonoBehaviour
         }
         AudioListener.volume = 0f;
 
+        if (!string.IsNullOrEmpty(nextSceneName))
+        {
+            Debug.Log($"Загрузка уровня: {nextSceneName}");
+            SceneManager.LoadScene(nextSceneName);
+        }
+        else
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            if (winPanel) winPanel.SetActive(true);
+        }
+    }
+    public void TriggerLoseSequence()
+    {
+        StartCoroutine(LoseRoutine());
+    }
+
+    private IEnumerator LoseRoutine()
+    {
+        Debug.Log("Поражение! Глушим системы...");
+        if (carController)
+        {
+            carController.enabled = false;
+            carController.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
+            carController.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+        }
+
+        float startVol = AudioListener.volume;
+        float fadeDuration = 2.0f;
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
+        {
+            AudioListener.volume = Mathf.Lerp(startVol, 0f, elapsed / fadeDuration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        AudioListener.volume = 0f;
+
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
-        if (winPanel) winPanel.SetActive(true);
+        if (losePanel) losePanel.SetActive(true);
     }
 }
