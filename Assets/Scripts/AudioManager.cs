@@ -40,6 +40,8 @@ public class AudioManager : MonoBehaviour
 
     private void Start()
     {
+        float savedVolume = PlayerPrefs.GetFloat("MasterVolume", 1.0f);
+        AudioListener.volume = savedVolume;
         if (engineSource) { engineSource.clip = engineClip; engineSource.Play(); engineSource.loop = true; }
 
         if (pawsSourceL) { pawsSourceL.clip = heavyMechClip; pawsSourceL.loop = true; }

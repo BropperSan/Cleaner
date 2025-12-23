@@ -218,4 +218,9 @@ public class MainMenuController : MonoBehaviour
 
         if (losePanel) losePanel.SetActive(true);
     }
+
+    public void PlayMenuSound()
+    {
+        if (buttonClickSound) _uiSource.PlayOneShot(buttonClickSound);
+    }
 }

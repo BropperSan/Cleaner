@@ -6,7 +6,6 @@ public class EnemyController : MonoBehaviour
 {
     public enum EnemyState { Idle, Patrol, Chase, Attack }
 
-    [Header("Настройки")]
     public EnemyState currentState = EnemyState.Patrol;
     public float patrolSpeed = 2.5f;
     public float chaseSpeed = 5.0f;
@@ -15,12 +14,10 @@ public class EnemyController : MonoBehaviour
     public float wanderRadius = 15f;
     private Animator _animator;
 
-    [Header("Бой")]
     public float damage = 2000f;
     public float attackCooldown = 2.0f;
     private float _lastAttackTime;
 
-    [Header("Ссылки")]
     public Transform player;
     public AudioSource audioSource;
     public AudioClip screamClip;
@@ -28,6 +25,12 @@ public class EnemyController : MonoBehaviour
     private NavMeshAgent _agent;
     private float _idleTimer;
     private bool _hasScreamed = false;
+
+    public AudioSource footstepSource;
+    public AudioClip footstepLoopClip;
+
+    [Range(0.5f, 3.0f)] public float walkPitch = 0.8f;
+    [Range(0.5f, 3.0f)] public float runPitch = 1.3f;
 
     private void Awake()
     {
@@ -40,6 +43,13 @@ public class EnemyController : MonoBehaviour
         if (player == null && GameObject.FindGameObjectWithTag("Player"))
             player = GameObject.FindGameObjectWithTag("Player").transform;
 
+        if (footstepSource && footstepLoopClip)
+        {
+            footstepSource.clip = footstepLoopClip;
+            footstepSource.loop = true;
+            footstepSource.playOnAwake = false;
+        }
+
         ChangeState(EnemyState.Patrol);
     }
 
@@ -48,6 +58,7 @@ public class EnemyController : MonoBehaviour
         UpdateAnimations();
         if (!_agent.isOnNavMesh) return;
 
+        HandleFootstepsLoop();
         switch (currentState)
         {
             case EnemyState.Idle: HandleIdle(); break;
@@ -101,7 +112,7 @@ public class EnemyController : MonoBehaviour
         transform.LookAt(targetPostition);
 
         float dist = Vector3.Distance(transform.position, player.position);
-        if (dist > attackDistance + 1.0f) 
+        if (dist > attackDistance + 1.0f)
         {
             ChangeState(EnemyState.Chase);
             return;
@@ -127,21 +138,21 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    private void CheckNoiseLevel() 
-    { 
-        if (currentState == EnemyState.Attack) return; 
-        if (NoiseManager.Instance != null) 
-        { 
-            if (NoiseManager.Instance.currentNoiseLevel > noiseThreshold) 
-            { 
-                if (currentState != EnemyState.Chase) ChangeState(EnemyState.Chase); 
-            } 
-            else 
-            if (currentState == EnemyState.Chase && Vector3.Distance(transform.position, player.position) > 20f) 
-            { 
-                ChangeState(EnemyState.Patrol); 
-            } 
-        } 
+    private void CheckNoiseLevel()
+    {
+        if (currentState == EnemyState.Attack) return;
+        if (NoiseManager.Instance != null)
+        {
+            if (NoiseManager.Instance.currentNoiseLevel > noiseThreshold)
+            {
+                if (currentState != EnemyState.Chase) ChangeState(EnemyState.Chase);
+            }
+            else
+            if (currentState == EnemyState.Chase && Vector3.Distance(transform.position, player.position) > 20f)
+            {
+                ChangeState(EnemyState.Patrol);
+            }
+        }
     }
 
     private void ChangeState(EnemyState newState)
@@ -165,11 +176,36 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    public static Vector3 RandomNavSphere(Vector3 origin, float dist, int layermask) 
-    { 
-        Vector3 randDirection = Random.insideUnitSphere * dist; 
-        randDirection += origin; 
-        NavMeshHit navHit; 
+    public static Vector3 RandomNavSphere(Vector3 origin, float dist, int layermask)
+    {
+        Vector3 randDirection = Random.insideUnitSphere * dist;
+        randDirection += origin;
+        NavMeshHit navHit;
         NavMesh.SamplePosition(randDirection, out navHit, dist, layermask); return navHit.position;
+    }
+
+
+    private void HandleFootstepsLoop()
+    {
+        if (footstepSource == null) return;
+        bool isMoving = _agent.velocity.sqrMagnitude > 0.1f && currentState != EnemyState.Attack;
+
+        if (isMoving)
+        {
+            if (!footstepSource.isPlaying)
+            {
+                footstepSource.Play();
+            }
+            float targetPitch = (currentState == EnemyState.Chase) ? runPitch : walkPitch;
+
+            footstepSource.pitch = Mathf.Lerp(footstepSource.pitch, targetPitch, Time.deltaTime * 5f);
+        }
+        else
+        {
+            if (footstepSource.isPlaying)
+            {
+                footstepSource.Pause();
+            }
+        }
     }
 }
